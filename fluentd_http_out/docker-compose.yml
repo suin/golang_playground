@@ -1,0 +1,36 @@
+version: '3'
+services:
+  fluentd:
+    image: fluent/fluentd:v1.11-1
+    volumes:
+      - ./my_fluentd.conf:/fluentd/etc/my_fluentd.conf
+      - fluentd_log:/fluentd/log
+      - nginx_log:/var/log/nginx
+    environment:
+      #      FLUENTD_OPT: -vv
+      FLUENTD_CONF: my_fluentd.conf
+      TZ: Asia/Tokyo
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    environment:
+      TZ: Asia/Tokyo
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - nginx_log:/var/log/nginx
+
+  go:
+    image: golang:1.15-alpine
+    ports:
+      - "8000:8000"
+    command: go run main.go
+    working_dir: /go
+    volumes:
+      - ./:/go
+
+
+volumes:
+  fluentd_log:
+  nginx_log:
